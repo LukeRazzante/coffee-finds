@@ -1,0 +1,795 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coffee Finds</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=DM+Sans:wght@300;400&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --cream: #f7f2eb;
+    --warm-white: #fdfaf6;
+    --tan: #e8ddd0;
+    --brown: #7a5c44;
+    --dark: #2e2218;
+    --mid: #a08060;
+    --accent: #c4956a;
+  }
+
+  body {
+    background: var(--warm-white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    color: var(--dark);
+    min-height: 100vh;
+    padding: 48px 24px 80px;
+  }
+
+  /* Subtle grain texture */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.5;
+  }
+
+  .container {
+    max-width: 640px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  header {
+    text-align: center;
+    margin-bottom: 52px;
+    animation: fadeUp 0.8s ease both;
+  }
+
+  .eyebrow {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 10px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(42px, 8vw, 64px);
+    font-weight: 300;
+    line-height: 1;
+    color: var(--dark);
+    letter-spacing: -0.01em;
+  }
+
+  h1 em {
+    font-style: italic;
+    color: var(--brown);
+  }
+
+  .subtitle {
+    margin-top: 14px;
+    font-size: 13px;
+    color: var(--mid);
+    letter-spacing: 0.04em;
+  }
+
+  .divider {
+    width: 40px;
+    height: 1px;
+    background: var(--tan);
+    margin: 20px auto 0;
+  }
+
+  /* Add form */
+  .add-form {
+    background: var(--cream);
+    border: 1px solid var(--tan);
+    border-radius: 16px;
+    padding: 28px;
+    margin-bottom: 36px;
+    animation: fadeUp 0.8s 0.1s ease both;
+  }
+
+  .form-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 18px;
+    font-style: italic;
+    color: var(--brown);
+    margin-bottom: 20px;
+  }
+
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .form-grid .full { grid-column: 1 / -1; }
+
+  input, textarea, select {
+    width: 100%;
+    background: var(--warm-white);
+    border: 1px solid var(--tan);
+    border-radius: 10px;
+    padding: 11px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 300;
+    color: var(--dark);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input::placeholder, textarea::placeholder { color: var(--mid); opacity: 0.7; }
+  input:focus, textarea:focus, select:focus { border-color: var(--accent); }
+
+  textarea { resize: none; height: 72px; }
+
+  .star-label {
+    font-size: 12px;
+    color: var(--mid);
+    margin-bottom: 6px;
+  }
+
+  .rating-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .rating-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .rating-row-label {
+    font-size: 12px;
+    color: var(--mid);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+  }
+
+  .rating-row-label .weight-badge {
+    font-size: 10px;
+    background: var(--accent);
+    color: #fff;
+    padding: 1px 6px;
+    border-radius: 99px;
+    letter-spacing: 0.04em;
+  }
+
+  .stars {
+    display: flex;
+    gap: 2px;
+  }
+
+  .star-wrap {
+    position: relative;
+    width: 26px;
+    height: 26px;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .star-wrap svg {
+    width: 26px;
+    height: 26px;
+    transition: transform 0.1s;
+  }
+
+  .star-wrap:hover svg { transform: scale(1.15); }
+
+  .star-bg { fill: var(--tan); }
+  .star-fill { fill: var(--accent); }
+
+  .vibe-options {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+
+  .vibe-chip {
+    padding: 6px 14px;
+    border-radius: 99px;
+    border: 1px solid var(--tan);
+    background: var(--warm-white);
+    font-size: 12px;
+    color: var(--mid);
+    cursor: pointer;
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .vibe-chip.selected {
+    background: var(--brown);
+    border-color: var(--brown);
+    color: #fff;
+  }
+
+  .add-btn {
+    width: 100%;
+    margin-top: 16px;
+    padding: 13px;
+    background: var(--dark);
+    color: var(--cream);
+    border: none;
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+  }
+
+  .add-btn:hover { background: var(--brown); transform: translateY(-1px); }
+  .add-btn:active { transform: translateY(0); }
+
+  /* Cards */
+  .list-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 16px;
+    animation: fadeUp 0.8s 0.2s ease both;
+  }
+
+  .list-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px;
+    font-style: italic;
+    color: var(--dark);
+  }
+
+  .count {
+    font-size: 12px;
+    color: var(--mid);
+    letter-spacing: 0.05em;
+  }
+
+  .cards { display: flex; flex-direction: column; gap: 14px; }
+
+  .card {
+    background: var(--cream);
+    border: 1px solid var(--tan);
+    border-radius: 16px;
+    padding: 22px 24px;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 4px 16px;
+    align-items: start;
+    animation: fadeUp 0.5s ease both;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--accent);
+    border-radius: 3px 0 0 3px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .card:hover::before { opacity: 1; }
+
+  .card-name {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 20px;
+    font-weight: 400;
+    color: var(--dark);
+    line-height: 1.2;
+  }
+
+  .card-drink {
+    font-size: 12px;
+    color: var(--accent);
+    margin-top: 3px;
+    letter-spacing: 0.03em;
+  }
+
+  .card-note {
+    font-size: 13px;
+    color: var(--mid);
+    margin-top: 8px;
+    line-height: 1.5;
+    grid-column: 1 / -1;
+  }
+
+  .card-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+    grid-column: 1 / -1;
+  }
+
+  .card-vibe {
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--brown);
+    background: var(--tan);
+    padding: 3px 10px;
+    border-radius: 99px;
+  }
+
+  .card-score-block {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 3px;
+  }
+
+  .card-score-total {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 28px;
+    font-weight: 300;
+    color: var(--brown);
+    line-height: 1;
+  }
+
+  .card-score-label {
+    font-size: 10px;
+    color: var(--mid);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+
+  .card-sub-scores {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    gap: 3px 8px;
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    align-items: center;
+  }
+
+  .card-sub-label {
+    font-size: 11px;
+    color: var(--mid);
+    letter-spacing: 0.04em;
+  }
+
+  .card-sub-stars {
+    display: flex;
+    gap: 1px;
+  }
+
+  .delete-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--tan);
+    font-size: 16px;
+    padding: 2px;
+    line-height: 1;
+    transition: color 0.15s;
+    align-self: start;
+  }
+
+  .delete-btn:hover { color: var(--accent); }
+
+  .empty-state {
+    text-align: center;
+    padding: 48px 24px;
+    color: var(--mid);
+    animation: fadeUp 0.6s ease both;
+  }
+
+  .empty-icon {
+    font-size: 36px;
+    margin-bottom: 12px;
+    opacity: 0.5;
+  }
+
+  .empty-state p {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+  }
+
+  /* Artwork */
+  .art-row {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 0;
+    margin-bottom: 8px;
+  }
+
+  .art-cup {
+    width: 90px;
+    height: 80px;
+    flex-shrink: 0;
+    animation: floatCup 4s ease-in-out infinite;
+  }
+
+  @keyframes floatCup {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-4px); }
+  }
+
+  .art-sprig {
+    width: 70px;
+    height: 55px;
+    opacity: 0.8;
+  }
+
+  .art-sprig.left { transform: scaleX(-1) translateY(6px); }
+  .art-sprig.right { transform: translateY(6px); }
+
+  .art-divider-wrap {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 14px auto 0;
+    width: 260px;
+  }
+
+  .art-divider-line {
+    flex: 1;
+    height: 1px;
+    background: var(--tan);
+  }
+
+  .art-bean {
+    width: 18px;
+    height: 13px;
+    flex-shrink: 0;
+  }
+
+  .divider { display: none; } /* replaced by art-divider-wrap */
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <!-- Top botanical row -->
+    <div class="art-row art-top">
+      <svg class="art-sprig left" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="40" y1="55" x2="40" y2="10" stroke="#c4956a" stroke-width="1.2"/>
+        <ellipse cx="40" cy="10" rx="7" ry="4" fill="#e8ddd0" stroke="#c4956a" stroke-width="1"/>
+        <ellipse cx="28" cy="22" rx="9" ry="5" fill="#e8ddd0" stroke="#c4956a" stroke-width="1" transform="rotate(-30 28 22)"/>
+        <ellipse cx="52" cy="30" rx="9" ry="5" fill="#e8ddd0" stroke="#c4956a" stroke-width="1" transform="rotate(30 52 30)"/>
+        <ellipse cx="30" cy="40" rx="8" ry="4.5" fill="#e8ddd0" stroke="#c4956a" stroke-width="1" transform="rotate(-20 30 40)"/>
+        <circle cx="40" cy="10" r="2" fill="#c4956a"/>
+        <circle cx="24" cy="20" r="1.5" fill="#c4956a"/>
+        <circle cx="53" cy="28" r="1.5" fill="#c4956a"/>
+      </svg>
+
+      <svg class="art-cup" viewBox="0 0 90 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <!-- Steam wisps -->
+        <path d="M32 22 Q28 14 32 8 Q36 2 32 -4" stroke="#c4956a" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.5"/>
+        <path d="M45 20 Q41 12 45 6 Q49 0 45 -6" stroke="#c4956a" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.4"/>
+        <path d="M58 22 Q54 14 58 8 Q62 2 58 -4" stroke="#c4956a" stroke-width="1.2" stroke-linecap="round" fill="none" opacity="0.5"/>
+        <!-- Cup body -->
+        <path d="M18 28 L24 68 Q45 74 66 68 L72 28 Z" fill="#f7f2eb" stroke="#c4956a" stroke-width="1.5"/>
+        <!-- Saucer -->
+        <ellipse cx="45" cy="68" rx="30" ry="5" fill="#e8ddd0" stroke="#c4956a" stroke-width="1.2"/>
+        <!-- Handle -->
+        <path d="M70 36 Q84 40 80 52 Q78 60 70 58" stroke="#c4956a" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+        <!-- Coffee surface -->
+        <ellipse cx="45" cy="30" rx="26" ry="5" fill="#c4956a" opacity="0.25"/>
+        <!-- Latte art heart -->
+        <path d="M39 30 Q42 27 45 30 Q48 27 51 30 Q51 35 45 39 Q39 35 39 30Z" fill="#c4956a" opacity="0.35"/>
+      </svg>
+
+      <svg class="art-sprig right" viewBox="0 0 80 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="40" y1="55" x2="40" y2="10" stroke="#c4956a" stroke-width="1.2"/>
+        <ellipse cx="40" cy="10" rx="7" ry="4" fill="#e8ddd0" stroke="#c4956a" stroke-width="1"/>
+        <ellipse cx="52" cy="22" rx="9" ry="5" fill="#e8ddd0" stroke="#c4956a" stroke-width="1" transform="rotate(30 52 22)"/>
+        <ellipse cx="28" cy="30" rx="9" ry="5" fill="#e8ddd0" stroke="#c4956a" stroke-width="1" transform="rotate(-30 28 30)"/>
+        <ellipse cx="50" cy="40" rx="8" ry="4.5" fill="#e8ddd0" stroke="#c4956a" stroke-width="1" transform="rotate(20 50 40)"/>
+        <circle cx="40" cy="10" r="2" fill="#c4956a"/>
+        <circle cx="56" cy="20" r="1.5" fill="#c4956a"/>
+        <circle cx="27" cy="28" r="1.5" fill="#c4956a"/>
+      </svg>
+    </div>
+
+    <p class="eyebrow">my little guide</p>
+    <h1>Coffee <em>Finds</em></h1>
+    <p class="subtitle">the good spots, ranked honestly</p>
+
+    <!-- Decorative rule with beans -->
+    <div class="art-divider-wrap">
+      <div class="art-divider-line"></div>
+      <svg class="art-bean" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="10" cy="7" rx="9" ry="6" fill="#e8ddd0" stroke="#c4956a" stroke-width="1"/>
+        <path d="M10 1 Q6 7 10 13" stroke="#c4956a" stroke-width="1" stroke-linecap="round" fill="none"/>
+      </svg>
+      <svg class="art-bean" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="10" cy="7" rx="9" ry="6" fill="#e8ddd0" stroke="#c4956a" stroke-width="1"/>
+        <path d="M10 1 Q14 7 10 13" stroke="#c4956a" stroke-width="1" stroke-linecap="round" fill="none"/>
+      </svg>
+      <svg class="art-bean" viewBox="0 0 20 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="10" cy="7" rx="9" ry="6" fill="#e8ddd0" stroke="#c4956a" stroke-width="1"/>
+        <path d="M10 1 Q6 7 10 13" stroke="#c4956a" stroke-width="1" stroke-linecap="round" fill="none"/>
+      </svg>
+      <div class="art-divider-line"></div>
+    </div>
+  </header>
+
+  <div class="add-form">
+    <p class="form-title">+ add a new spot</p>
+    <div class="form-grid">
+      <input class="full" id="shopName" type="text" placeholder="Coffee shop name">
+      <input class="full" id="drinkInput" type="text" placeholder="Favorite drink">
+      <div class="full rating-group">
+        <div class="rating-row">
+          <span class="rating-row-label">coffee quality <span class="weight-badge">2×</span></span>
+          <div class="stars" id="starCoffee"></div>
+        </div>
+        <div class="rating-row">
+          <span class="rating-row-label">atmosphere</span>
+          <div class="stars" id="starAtmo"></div>
+        </div>
+        <div class="rating-row">
+          <span class="rating-row-label">value</span>
+          <div class="stars" id="starValue"></div>
+        </div>
+      </div>
+      <div class="full">
+        <p class="star-label" style="margin-bottom:8px">vibe</p>
+        <div class="vibe-options" id="vibePicker">
+          <div class="vibe-chip" data-vibe="quick coffee">quick coffee</div>
+          <div class="vibe-chip" data-vibe="sunday morning">sunday morning</div>
+          <div class="vibe-chip" data-vibe="group hangout">group hangout</div>
+          <div class="vibe-chip" data-vibe="date spot">date spot</div>
+          <div class="vibe-chip" data-vibe="work session">work session</div>
+          <div class="vibe-chip" data-vibe="catch-up">catch-up</div>
+          <div class="vibe-chip" data-vibe="treat yourself">treat yourself</div>
+        </div>
+      </div>
+      <textarea class="full" id="noteInput" placeholder="Any notes? (vibe, parking, must-try...)"></textarea>
+    </div>
+    <button class="add-btn" onclick="addShop()">Save this spot</button>
+  </div>
+
+  <div class="list-header">
+    <span class="list-title">
+      <svg width="16" height="16" viewBox="0 0 20 14" fill="none" style="vertical-align:middle;margin-right:6px;opacity:0.6">
+        <ellipse cx="10" cy="7" rx="9" ry="6" fill="#e8ddd0" stroke="#c4956a" stroke-width="1.2"/>
+        <path d="M10 1 Q6 7 10 13" stroke="#c4956a" stroke-width="1" stroke-linecap="round" fill="none"/>
+      </svg>my spots
+    </span>
+    <span class="count" id="countLabel">0 places</span>
+  </div>
+
+  <div class="cards" id="cardList"></div>
+
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://ubinrdebjjhshtzmzahf.supabase.co';
+  const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InViaW5yZGViampoc2h0em16YWhmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMwMDI3NTgsImV4cCI6MjA4ODU3ODc1OH0.GMxdI1W-cdFm8Y6zgz_UK0VkpNqMtj0W-GBTRVMjcl8';
+
+  async function supabase(method, body) {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/coffee_shops${method}`, {
+      method: body ? (method.includes('id') ? 'DELETE' : 'POST') : 'GET',
+      headers: {
+        'apikey': SUPABASE_KEY,
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=representation'
+      },
+      body: body ? JSON.stringify(body) : undefined
+    });
+    if (!res.ok) {
+      const err = await res.text();
+      throw new Error(err);
+    }
+    return method.includes('id') ? null : res.json();
+  }
+
+  let shops = [];
+  let scores = { coffee: 0, atmo: 0, value: 0 };
+  let selectedVibe = '';
+
+  // ── Star helpers ──────────────────────────────────────
+  const STAR_PATH = "M12 2l2.9 6 6.6.9-4.8 4.6 1.1 6.5L12 17l-5.8 3 1.1-6.5L2.5 9 9.1 8z";
+
+  function starSVG(fill) {
+    const uid = Math.random().toString(36).slice(2);
+    if (fill === 1) return `<svg viewBox="0 0 24 24"><path class="star-fill" d="${STAR_PATH}"/></svg>`;
+    if (fill === 0.5) return `<svg viewBox="0 0 24 24">
+      <defs><clipPath id="h${uid}"><rect x="0" y="0" width="12" height="24"/></clipPath></defs>
+      <path class="star-bg" d="${STAR_PATH}"/>
+      <path class="star-fill" d="${STAR_PATH}" clip-path="url(#h${uid})"/>
+    </svg>`;
+    return `<svg viewBox="0 0 24 24"><path class="star-bg" d="${STAR_PATH}"/></svg>`;
+  }
+
+  function miniStars(n) {
+    return Array.from({length: 5}, (_, i) => {
+      const s = i + 1;
+      const fill = n >= s ? 1 : n >= s - 0.5 ? 0.5 : 0;
+      const uid = `m${i}${Math.random().toString(36).slice(2,5)}`;
+      if (fill === 1) return `<svg width="14" height="14" viewBox="0 0 24 24"><path fill="var(--accent)" d="${STAR_PATH}"/></svg>`;
+      if (fill === 0.5) return `<svg width="14" height="14" viewBox="0 0 24 24">
+        <defs><clipPath id="${uid}"><rect x="0" y="0" width="12" height="24"/></clipPath></defs>
+        <path fill="var(--tan)" d="${STAR_PATH}"/>
+        <path fill="var(--accent)" d="${STAR_PATH}" clip-path="url(#${uid})"/>
+      </svg>`;
+      return `<svg width="14" height="14" viewBox="0 0 24 24"><path fill="var(--tan)" d="${STAR_PATH}"/></svg>`;
+    }).join('');
+  }
+
+  function buildStarPicker(containerId, key) {
+    const container = document.getElementById(containerId);
+    container.innerHTML = '';
+    for (let i = 1; i <= 5; i++) {
+      const wrap = document.createElement('div');
+      wrap.className = 'star-wrap';
+      wrap.innerHTML = starSVG(0);
+      wrap.addEventListener('click', (e) => {
+        const x = e.clientX - wrap.getBoundingClientRect().left;
+        scores[key] = x < wrap.offsetWidth / 2 ? i - 0.5 : i;
+        updatePicker(containerId, scores[key]);
+      });
+      wrap.addEventListener('mousemove', (e) => {
+        const x = e.clientX - wrap.getBoundingClientRect().left;
+        updatePicker(containerId, x < wrap.offsetWidth / 2 ? i - 0.5 : i);
+      });
+      container.appendChild(wrap);
+    }
+    container.addEventListener('mouseleave', () => updatePicker(containerId, scores[key]));
+  }
+
+  function updatePicker(containerId, val) {
+    document.querySelectorAll(`#${containerId} .star-wrap`).forEach((wrap, i) => {
+      const s = i + 1;
+      wrap.innerHTML = starSVG(val >= s ? 1 : val >= s - 0.5 ? 0.5 : 0);
+    });
+  }
+
+  buildStarPicker('starCoffee', 'coffee');
+  buildStarPicker('starAtmo', 'atmo');
+  buildStarPicker('starValue', 'value');
+
+  document.querySelectorAll('.vibe-chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      document.querySelectorAll('.vibe-chip').forEach(c => c.classList.remove('selected'));
+      chip.classList.add('selected');
+      selectedVibe = chip.dataset.vibe;
+    });
+  });
+
+  // ── Score calc ─────────────────────────────────────────
+  function calcScore(s) {
+    if (!s.coffee && !s.atmo && !s.value) return null;
+    const w = (s.coffee ? 2 : 0) + (s.atmo ? 1 : 0) + (s.value ? 1 : 0);
+    return ((s.coffee * 2 + s.atmo + s.value) / w).toFixed(1);
+  }
+
+  // ── DB ops ─────────────────────────────────────────────
+  async function loadShops() {
+    setStatus('loading');
+    try {
+      const data = await supabase('?order=created_at.desc');
+      shops = data;
+      render();
+      setStatus('');
+    } catch(e) {
+      setStatus('error');
+      console.error(e);
+    }
+  }
+
+  async function addShop() {
+    const name = document.getElementById('shopName').value.trim();
+    if (!name) { document.getElementById('shopName').focus(); return; }
+
+    const btn = document.querySelector('.add-btn');
+    btn.textContent = 'saving...';
+    btn.disabled = true;
+
+    try {
+      const data = await supabase('', [{
+        name,
+        drink: document.getElementById('drinkInput').value.trim(),
+        coffee: scores.coffee || null,
+        atmo: scores.atmo || null,
+        value: scores.value || null,
+        vibe: selectedVibe || null,
+        note: document.getElementById('noteInput').value.trim() || null
+      }]);
+      shops = [data[0], ...shops];
+      resetForm();
+      render();
+    } catch(e) {
+      alert('Could not save. Check your connection.');
+      console.error(e);
+    }
+
+    btn.textContent = 'save this spot';
+    btn.disabled = false;
+  }
+
+  async function deleteShop(id) {
+    try {
+      await supabase(`?id=eq.${id}`, {});
+      shops = shops.filter(s => s.id !== id);
+      render();
+    } catch(e) {
+      alert('Could not delete. Try again.');
+    }
+  }
+
+  function resetForm() {
+    ['shopName','drinkInput','noteInput'].forEach(id => document.getElementById(id).value = '');
+    scores = { coffee: 0, atmo: 0, value: 0 };
+    selectedVibe = '';
+    ['starCoffee','starAtmo','starValue'].forEach(id => updatePicker(id, 0));
+    document.querySelectorAll('.vibe-chip').forEach(c => c.classList.remove('selected'));
+  }
+
+  function setStatus(state) {
+    const list = document.getElementById('cardList');
+    if (state === 'loading') list.innerHTML = `<div class="empty-state"><div class="empty-icon" style="font-size:24px;opacity:0.4">—</div><p>loading your spots...</p></div>`;
+    if (state === 'error') list.innerHTML = `<div class="empty-state"><p>couldn't connect. check your internet and refresh.</p></div>`;
+  }
+
+  // ── Render ─────────────────────────────────────────────
+  function render() {
+    const list = document.getElementById('cardList');
+    document.getElementById('countLabel').textContent = `${shops.length} place${shops.length !== 1 ? 's' : ''}`;
+
+    if (!shops.length) {
+      list.innerHTML = `<div class="empty-state"><div class="empty-icon">☕</div><p>no spots yet — add your first find</p></div>`;
+      return;
+    }
+
+    const sorted = [...shops].sort((a, b) => (calcScore(b) || 0) - (calcScore(a) || 0));
+
+    list.innerHTML = sorted.map((s, i) => {
+      const score = calcScore(s);
+      return `
+      <div class="card" style="animation-delay:${i * 0.05}s">
+        <div>
+          <div class="card-name">${s.name}</div>
+          ${s.drink ? `<div class="card-drink">✦ ${s.drink}</div>` : ''}
+        </div>
+        <div class="card-score-block">
+          ${score ? `<div class="card-score-total">${score}</div><div class="card-score-label">score</div>` : ''}
+          <button class="delete-btn" onclick="deleteShop('${s.id}')" style="margin-top:6px">✕</button>
+        </div>
+        ${(s.coffee || s.atmo || s.value) ? `
+        <div class="card-sub-scores">
+          ${s.coffee ? `<span class="card-sub-label">coffee</span><span class="card-sub-stars">${miniStars(s.coffee)}</span>` : ''}
+          ${s.atmo ? `<span class="card-sub-label">atmosphere</span><span class="card-sub-stars">${miniStars(s.atmo)}</span>` : ''}
+          ${s.value ? `<span class="card-sub-label">value</span><span class="card-sub-stars">${miniStars(s.value)}</span>` : ''}
+        </div>` : ''}
+        ${s.note ? `<div class="card-note">${s.note}</div>` : ''}
+        <div class="card-meta">
+          ${s.vibe ? `<span class="card-vibe">${s.vibe}</span>` : ''}
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── Boot ───────────────────────────────────────────────
+  loadShops();
+</script>
+</body>
+</html>
